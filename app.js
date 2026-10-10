@@ -1,0 +1,12 @@
+const $=s=>document.querySelector(s);
+$('#year').textContent=new Date().getFullYear();
+$('#menuToggle').addEventListener('click',()=>$('#nav').classList.toggle('open'));
+document.querySelectorAll('#nav a').forEach(a=>a.addEventListener('click',()=>$('#nav').classList.remove('open')));
+function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+const fallbackProjectImage='https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80';
+const fallbackActivityImage='https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1000&q=80';
+function projectCard(x){return `<article class="project-card"><img loading="lazy" src="${esc(x.image||fallbackProjectImage)}" alt="${esc(x.title)}" onerror="this.src='${fallbackProjectImage}'"><div class="card-body"><span class="tag">${esc(x.category||'Projet')}</span><h3>${esc(x.title)}</h3><p>${esc(x.description)}</p></div></article>`}
+function activityCard(x){return `<article class="activity-card"><img loading="lazy" src="${esc(x.image||fallbackActivityImage)}" alt="${esc(x.title)}" onerror="this.src='${fallbackActivityImage}'"><div class="card-body"><time>${esc(x.date||'Activité D7U')}</time><h3>${esc(x.title)}</h3><p>${esc(x.description)}</p><a class="read-more" href="#contact">En savoir plus →</a></div></article>`}
+async function loadContent(){try{const r=await fetch('/api/content');if(!r.ok)throw Error();const d=await r.json();$('#projectGrid').innerHTML=d.projects.length?d.projects.map(projectCard).join(''):'<p>Aucun projet publié pour le moment.</p>';$('#activityGrid').innerHTML=d.activities.length?d.activities.slice(0,3).map(activityCard).join(''):'<p>Aucune activité publiée pour le moment.</p>';}catch{$('#projectGrid').innerHTML='<p>Les projets seront bientôt disponibles.</p>';$('#activityGrid').innerHTML='<p>Les activités seront bientôt disponibles.</p>';}}
+loadContent();
+$('#contactForm').addEventListener('submit',e=>{e.preventDefault();const f=new FormData(e.currentTarget);const subject=encodeURIComponent('Message depuis le site D7U — '+f.get('name'));const body=encodeURIComponent(`Nom : ${f.get('name')}\nE-mail : ${f.get('email')}\n\n${f.get('message')}`);$('#contactNote').textContent='Votre application de messagerie va s’ouvrir pour envoyer votre message.';window.location.href=`mailto:?subject=${subject}&body=${body}`;});
